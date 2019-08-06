@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+	<head>
+		<!-- ページはUTF-8で読み込む -->
+		<meta charset="utf-8" />
+		<!-- ページのタイトル -->
+		<title>Evaluation Schedule Simulate System - E3S</title>
+		<!-- ページのアイコン -->
+		<link href="./favicon.png" rel="icon" />
+		<!-- スタイルシートの読み込み -->
+		<link href="./style.css" rel="stylesheet" />
+		<!-- スクリプトの読み込み -->
+		<script defer src="./script.js"></script>
+	</head>
+	<body>
+		<!-- ファイルを選択する -->
+		<input id="inputFile" style="display: none;" type="file" />
+		<!-- ユーザーの操作する箇所 -->
+		<form id="interface">
+			<!-- 入力フォームの説明 -->
+			<div style="grid-column: 2;grid-row: 2;">Start</div>
+			<div style="grid-column: 3;grid-row: 2;">Finish</div>
+			<div style="grid-column: 4;grid-row: 2;">Span</div>
+			<div style="grid-column: 5;grid-row: 2;"></div>
+			<div style="grid-column: 6;grid-row: 2;"></div>
+			<!-- 入力フォーム -->
+			<input class="form" id="inputStart" placeholder="0" style="grid-column: 2;grid-row: 3;" type="text" value="0" />
+			<input class="form" id="inputLimit" placeholder="1000" style="grid-column: 3;grid-row: 3;" type="text" value="1000" />
+			<input class="form" id="inputSpan" placeholder="250" style="grid-column: 4;grid-row: 3;" type="text" value="250" />
+			<input class="form" id="inputOpen" style="grid-column: 5;grid-row: 3;" type="button" value="Open" />
+			<input class="form" id="inputRun" style="grid-column: 6;grid-row: 3;" type="button" value="Run" />
+			<!-- 入力フォームの説明 -->
+			<div style="grid-column: 2;grid-row: 5;">Year</div>
+			<div style="grid-column: 3;grid-row: 5;">Month</div>
+			<div style="grid-column: 4;grid-row: 5;">Date</div>
+			<div style="grid-column: 5;grid-row: 5;">Hour</div>
+			<div style="grid-column: 6;grid-row: 5;">Minute</div>
+			<!-- 入力フォーム -->
+			<input class="form" id="inputYear" placeholder="YYYY" style="grid-column: 2;grid-row: 6;" type="text" value="2019" />
+			<input class="form" id="inputMonth" placeholder="MM" style="grid-column: 3;grid-row: 6;" type="text" value="1" />
+			<input class="form" id="inputDate" placeholder="DD" style="grid-column: 4;grid-row: 6;" type="text" value="1" />
+			<input class="form" id="inputHour" placeholder="hh" style="grid-column: 5;grid-row: 6;" type="text" value="17" />
+			<input class="form" id="inputMinute" placeholder="mm" style="grid-column: 6;grid-row: 6;" type="text" value="0" />
+		</form>
+		<!-- 演算結果の出力先 -->
+		<table id="resultTable"></table>
+		<!-- 演算のログ -->
+		<div id="logDiv"></div>
+	</body>
+</html>
