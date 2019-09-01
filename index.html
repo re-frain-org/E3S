@@ -1,0 +1,39 @@
+﻿<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Evaluation Schedule Simulation System - E3S</title>
+		<link href="./favicon.png" rel="icon" />
+		<link href="./style.css" rel="stylesheet" />
+		<script defer src="./script.js"></script>
+	</head>
+	<body>
+		<input id="pickImmobileList" style="display: none;" type="file" />
+		<input id="pickHolidayList" style="display: none;" type="file" />
+		<div id="interface">
+			<div style="grid-column: 2;grid-row: 2;">開始時間</div>
+			<div style="grid-column: 2;grid-row: 3;">終了時間</div>
+			<div style="grid-column: 2;grid-row: 4;">ステップ時間</div>
+			<div style="grid-column: 2;grid-row: 5;">非稼働日の一覧</div>
+			<div style="grid-column: 2;grid-row: 6;">非営業日の一覧</div>
+			<input id="inputStart" placeholder="0" style="grid-column: 3;grid-row: 2;" type="number" value="0" />
+			<input id="inputFinish" placeholder="1000" style="grid-column: 3;grid-row: 3;" type="number" value="1000" />
+			<input id="inputSpan" placeholder="250" style="grid-column: 3;grid-row: 4;" type="number" value="250" />
+			<button id="clickImmobileListPicker" style="grid-column: 3;grid-row: 5;">選択する</button>
+			<button id="clickHolidayListPicker" style="grid-column: 3;grid-row: 6;">選択する</button>
+			<div style="grid-column: 5;grid-row: 2;">年</div>
+			<div style="grid-column: 5;grid-row: 3;">月</div>
+			<div style="grid-column: 5;grid-row: 4;">日</div>
+			<div style="grid-column: 5;grid-row: 5;">時</div>
+			<div style="grid-column: 5;grid-row: 6;">分</div>
+			<input id="inputYear" placeholder="YYYY" style="grid-column: 6;grid-row: 2;" type="number" value="2019" />
+			<input id="inputMonth" placeholder="MM" style="grid-column: 6;grid-row: 3;" type="number" value="1" />
+			<input id="inputDate" placeholder="DD" style="grid-column: 6;grid-row: 4;" type="number" value="1" />
+			<input id="inputHour" placeholder="hh" style="grid-column: 6;grid-row: 5;" type="number" value="17" />
+			<input id="inputMinute" placeholder="mm" style="grid-column: 6;grid-row: 6;" type="number" value="0" />
+			<button id="runButton" style="grid-column: 8;grid-row: 3;">実行する</button>
+			<button id="copyButton" style="grid-column: 8;grid-row: 5;">コピーする</button>
+		</div>
+		<table id="resultTable"></table>
+	</body>
+</html>
