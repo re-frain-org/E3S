@@ -25,8 +25,8 @@
 	 * ※HOLIDAY_LISTは取り出しの対応ができない(環境槽が動いている)日付のリスト
 	 * ※HOLIDAY_LISTは規定のフォーマット(YYYY/MM/DD)で入力する
 	 */
-	const cache=[],IMMOBILE_LIST=[],HOLIDAY_LIST=[];
-	let base,distance,finish,loop,span,start,temp,total;
+	const CACHE_DATA=[],IMMOBILE_LIST=[],HOLIDAY_LIST=[];
+	let base,cache,distance,finish,loop,span,start,temp,total;
 	/**
 	 * 各イベント時の処理を設定
 	 */
@@ -37,37 +37,30 @@
 	runButton.addEventListener("click",onClick,false);
 	copyButton.addEventListener("click",onClick,false);
 	/**
-	 * @param {Event} event
+	 * @function               onChange
+	 * @param    {Event}       event
+	 * @param    {Array<File>} event.target.files
+	 * @this     {HTMLElement} event.target
 	 * changeイベントの処理
 	 */
 	function onChange(event){
-		switch(event.target){
+		switch(this){
 			case pickImmobileList:
-				read(event.target.files[0],function(event){
-					IMMOBILE_LIST.length=0;
-					const result=event.target.result.replace(/\r/g,"");
-					result.split("\n").forEach(currentValue=>IMMOBILE_LIST.push(currentValue));
-				},function(event){
-					console.error("Failed to read file.");
-				});
+				load(this.files[0],IMMOBILE_LIST);
 				break;
 			case pickHolidayList:
-				read(event.target.files[0],function(event){
-					HOLIDAY_LIST.length=0;
-					const result=event.target.result.replace(/\r/g,"");
-					result.split("\n").forEach(currentValue=>HOLIDAY_LIST.push(currentValue));
-				},function(event){
-					console.error("Failed to read file.");
-				});
+				load(this.files[0],HOLIDAY_LIST);
 				break;
 		}
 	}
 	/**
-	 * @param {Event} event
+	 * @function               onClick
+	 * @param    {Event}       event
+	 * @this     {HTMLElement} event.target
 	 * clickイベントの処理
 	 */
 	function onClick(event){
-		switch(event.target){
+		switch(this){
 			case clickImmobileListPicker:
 				pickImmobileList.click();
 				break;
@@ -75,30 +68,35 @@
 				pickHolidayList.click();
 				break;
 			case runButton:
-				reset();
+				initialize();
 				while(main());
 				break;
 			case copyButton:
-				copy(resultTable);
+				copyElement(resultTable);
 				break;
 		}
 	}
 	/**
-	 * @param  {File}     file
-	 * @param  {Function} succeed
-	 * @param  {Function} failed
-	 * ファイルを読み込み、成功時・失敗時それぞれの処理を実行する
+	 * @function         load
+	 * @param    {File}  file
+	 * @param    {Array} data
+	 * ファイルを読み込み、データを処理する
 	 */
-	function read(file,succeed,failed){
+	function load(file,data){
 		const reader=new FileReader();
-		reader.addEventListener("error",failed,false);
-		reader.addEventListener("load",succeed,false);
-		reader.readAsText(file);
+		reader.addEventListener("load",function(event){
+			data.length=0;
+			this.result.replace(/\r/g,"").split("\n").forEach(function(currentValue,index,array){
+				data.push(currentValue);
+			});
+		},false);
+		reader.readAsText(file,"utf-8");
 	}
 	/**
-	 * 変数とテーブルの1行目の初期化
+	 * @function initialize
+	 * 変数の初期化・出力テーブルの消去
 	 */
-	function reset(){
+	function initialize(){
 		start=parseInt(inputStart.value);
 		finish=parseInt(inputFinish.value);
 		span=parseInt(inputSpan.value);
@@ -107,33 +105,33 @@
 		distance=0;
 		temp=new Date(`${inputYear.value}/${inputMonth.value}/${inputDate.value} ${inputHour.value}:${inputMinute.value}`);
 		base=temp.getTime();
-		cache.length=0;
-		resultTable.innerHTML="";
-		output(["年","月","日","時","分","年","月","日","時","分","経過","停止理由"]);
+		CACHE_DATA.length=0;
+		resultTable.querySelector("tbody").innerHTML="";
 	}
 	/**
-	 * 日時の演算や出力等を行うメインのプログラム
+	 * @function main
+	 * メインのプログラム
 	 */
 	function main(){
-		save(temp);
+		save();
 		update(10);
-		while(parse(temp.getTime()-base)<span*(loop+1)+7*loop+distance-start||check(temp)){
+		while((total=parse(temp.getTime()-base)-7*loop-distance+start)<span*(loop+1)||checkHoliday(temp)){
 			temp.setDate(temp.getDate()+1);
-			if(search())
+			if(checkImmobile())
 				return true;
 		}
-		total=parse(temp.getTime()-base)-7*loop-distance+start;
-		save(temp);
-		output(cache.concat([total,""]));
-		cache.length=0;
+		save();
+		CACHE_DATA.push(total);
+		CACHE_DATA.push("");
+		output();
 		loop++;
 		update(17);
 		return total<finish;
 	}
 	/**
-	 * @param  {Number} hour
-	 * 現在の時刻がhour以前ならhourに設定し、
-	 * そうでないなら翌日に変更した上でhourに設定する
+	 * @function          update
+	 * @param    {number} hour
+	 * 現在の時刻がhour以降なら翌日に変更し、時刻をhourに設定する
 	 */
 	function update(hour){
 		if(temp.getHours()>hour)
@@ -141,31 +139,34 @@
 		temp.setHours(hour);
 	}
 	/**
-	 * @param  {Number} millisecond
-	 * @return {Number}
+	 * @function         parse
+	 * @param   {number} millisecond
+	 * @returns {number}
 	 * ミリ秒を時間に変換する(変換式: millisecond/(min*sec*ms))
 	 */
 	function parse(millisecond){
 		return Math.floor(millisecond/3600000);
 	}
 	/**
-	 * @return {Boolean}
+	 * @function           checkImmobile
+	 * @returns  {boolean}
 	 * 非稼働日の場合、データを出力した後にtrueを返す
 	 */
-	function search(){
+	function checkImmobile(){
 		let flag=false;
 		IMMOBILE_LIST.forEach(function(currentValue,index,array){
 			const [period,reason]=currentValue.split("_");
 			const [stop,restart]=period.split("~");
-			if(convert(temp).split(" ")[0]==stop.split(" ")[0]){
+			if(format().split(" ")[0]==stop.split(" ")[0]){
 				const stopDate=new Date(stop);
 				save(stopDate);
 				total=parse(stopDate.getTime()-base)-7*loop-distance+start;
 				temp=new Date(restart);
 				distance+=parse(temp.getTime()-stopDate.getTime());
 				flag=true;
-				output(cache.concat([total,reason]));
-				cache.length=0;
+				CACHE_DATA.push(total);
+				CACHE_DATA.push(reason);
+				output();
 				if(total>=(loop+1)*span)
 					loop++;
 			}
@@ -173,52 +174,58 @@
 		return flag;
 	}
 	/**
-	 * @param {Date} date
-	 * @return {String}
+	 * @function          format
+	 * @param    {Date}   date
+	 * @returns  {string}
 	 * Dateオブジェクトを規定のフォーマット(YYYY/MM/DD hh:mm)に変換する
 	 */
-	function convert(date){
-		return `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
+	function format(){
+		return `${temp.getFullYear()}/${temp.getMonth()+1}/${temp.getDate()} ${temp.getHours()}:${temp.getMinutes()}`;
 	}
 	/**
-	 * @param  {Date} date
-	 * 年・月・日・時・分を保存する
+	 * @function        save
+	 * @param    {Date} [date=temp]
+	 * 年, 月, 日, 時, 分を保存する
 	 */
 	function save(date){
-		cache.push(date.getFullYear());
-		cache.push(date.getMonth()+1);
-		cache.push(date.getDate());
-		cache.push(date.getHours());
-		cache.push(date.getMinutes());
+		if(date==undefined)
+			date=temp;
+		CACHE_DATA.push(date.getFullYear());
+		CACHE_DATA.push(date.getMonth()+1);
+		CACHE_DATA.push(date.getDate());
+		CACHE_DATA.push(date.getHours());
+		CACHE_DATA.push(date.getMinutes());
 	}
 	/**
-	 * @param {Array} data
+	 * @function output
 	 * データをテーブルに出力する
 	 */
-	function output(data){
+	function output(){
 		const tr=document.createElement("tr");
-		data.forEach(function(currentValue,index,array){
+		CACHE_DATA.forEach(function(currentValue,index,array){
 			const td=document.createElement("td");
 			td.textContent=currentValue;
 			tr.appendChild(td);
 		});
-		resultTable.appendChild(tr);
+		resultTable.querySelector("tbody").appendChild(tr);
+		CACHE_DATA.length=0;
 	}
 	/**
-	 * @param {Date} date
-	 * @return {Boolean}
-	 * 取り出し不可能な日又は土日かを判定する
+	 * @function           checkHoliday
+	 * @returns  {boolean}
+	 * 取り出し可能な日かを判定する
 	 */
-	function check(date){
-		return HOLIDAY_LIST.includes(`${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}`)||date.getDay()%6==0;
+	function checkHoliday(){
+		return HOLIDAY_LIST.includes(`${temp.getFullYear()}/${temp.getMonth()+1}/${temp.getDate()}`)||temp.getDay()%6==0;
 	}
 	/**
-	 * @param {HTMLElement} targetElement
+	 * @function               copyElement
+	 * @param    {HTMLElement} targetElement
 	 * 要素を選択し、クリップボードにコピーする
 	 */
-	function copy(element){
+	function copyElement(targetElement){
 		const range=document.createRange();
-		range.selectNode(element);
+		range.selectNode(targetElement);
 		const selection=window.getSelection();
 		selection.removeAllRanges();
 		selection.addRange(range);
