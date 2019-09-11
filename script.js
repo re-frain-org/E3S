@@ -19,16 +19,16 @@
 	const copyButton=document.querySelector("#copyButton");
 	const resultTable=document.querySelector("#resultTable");
 	/**
-	 * プログラム内で使用するグローバル変数を宣言する
-	 * ※IMMOBILE_LISTは試験ができない(環境槽が動いていない)期間のリスト
-	 * ※IMMOBILE_LISTは規定のフォーマット(YYYY/MM/DD hh:mm~YYYY/MM/DD hh:mm_REASON)で入力する
-	 * ※HOLIDAY_LISTは取り出しの対応ができない(環境槽が動いている)日付のリスト
-	 * ※HOLIDAY_LISTは規定のフォーマット(YYYY/MM/DD)で入力する
+	 * プログラム内で使用する変数を宣言する
+	 * ※IMMOBILE_LISTは試験ができない(環境槽が動いていない)期間のリストで、
+	 *   規定のフォーマット(YYYY/MM/DD hh:mm~YYYY/MM/DD hh:mm_REASON)で入力する
+	 * ※HOLIDAY_LISTは取り出しの対応ができない(環境槽が動いている)日付のリストで、
+	 *   規定のフォーマット(YYYY/MM/DD)で入力する
 	 */
 	const CACHE_DATA=[],IMMOBILE_LIST=[],HOLIDAY_LIST=[];
 	let base,cache,distance,finish,loop,span,start,temp,total;
 	/**
-	 * 各イベント時の処理を設定
+	 * 各イベント時の処理を設定する
 	 */
 	pickImmobileList.addEventListener("change",onChange,false);
 	pickHolidayList.addEventListener("change",onChange,false);
@@ -37,11 +37,10 @@
 	runButton.addEventListener("click",onClick,false);
 	copyButton.addEventListener("click",onClick,false);
 	/**
-	 * @function               onChange
-	 * @param    {Event}       event
-	 * @param    {Array<File>} event.target.files
-	 * @this     {HTMLElement} event.target
-	 * changeイベントの処理
+	 * @function onChange
+	 * @argument {Event} event
+	 * @argument {FileList} event.target.files
+	 * @this {HTMLElement} event.target
 	 */
 	function onChange(event){
 		switch(this){
@@ -54,10 +53,9 @@
 		}
 	}
 	/**
-	 * @function               onClick
-	 * @param    {Event}       event
-	 * @this     {HTMLElement} event.target
-	 * clickイベントの処理
+	 * @function onClick
+	 * @argument {Event} event
+	 * @this {HTMLElement} event.target
 	 */
 	function onClick(event){
 		switch(this){
@@ -77,10 +75,9 @@
 		}
 	}
 	/**
-	 * @function         load
-	 * @param    {File}  file
-	 * @param    {Array} data
-	 * ファイルを読み込み、データを処理する
+	 * @function load
+	 * @argument {File} file
+	 * @argument {Array<string>} data
 	 */
 	function load(file,data){
 		const reader=new FileReader();
@@ -94,7 +91,6 @@
 	}
 	/**
 	 * @function initialize
-	 * 変数の初期化・出力テーブルの消去
 	 */
 	function initialize(){
 		start=parseInt(inputStart.value);
@@ -110,7 +106,6 @@
 	}
 	/**
 	 * @function main
-	 * メインのプログラム
 	 */
 	function main(){
 		save();
@@ -129,9 +124,8 @@
 		return total<finish;
 	}
 	/**
-	 * @function          update
-	 * @param    {number} hour
-	 * 現在の時刻がhour以降なら翌日に変更し、時刻をhourに設定する
+	 * @function update
+	 * @argument {number} hour
 	 */
 	function update(hour){
 		if(temp.getHours()>hour)
@@ -139,18 +133,14 @@
 		temp.setHours(hour);
 	}
 	/**
-	 * @function         parse
-	 * @param   {number} millisecond
-	 * @returns {number}
-	 * ミリ秒を時間に変換する(変換式: millisecond/(min*sec*ms))
+	 * @function {number} parse
+	 * @argument {number} millisecond
 	 */
 	function parse(millisecond){
 		return Math.floor(millisecond/3600000);
 	}
 	/**
-	 * @function           checkImmobile
-	 * @returns  {boolean}
-	 * 非稼働日の場合、データを出力した後にtrueを返す
+	 * @function {boolean} checkImmobile
 	 */
 	function checkImmobile(){
 		let flag=false;
@@ -174,18 +164,14 @@
 		return flag;
 	}
 	/**
-	 * @function          format
-	 * @param    {Date}   date
-	 * @returns  {string}
-	 * Dateオブジェクトを規定のフォーマット(YYYY/MM/DD hh:mm)に変換する
+	 * @function {string} format
 	 */
 	function format(){
 		return `${temp.getFullYear()}/${temp.getMonth()+1}/${temp.getDate()} ${temp.getHours()}:${temp.getMinutes()}`;
 	}
 	/**
-	 * @function        save
-	 * @param    {Date} [date=temp]
-	 * 年, 月, 日, 時, 分を保存する
+	 * @function save
+	 * @argument {Date} date=temp
 	 */
 	function save(date){
 		if(date==undefined)
@@ -198,7 +184,6 @@
 	}
 	/**
 	 * @function output
-	 * データをテーブルに出力する
 	 */
 	function output(){
 		const tr=document.createElement("tr");
@@ -211,17 +196,14 @@
 		CACHE_DATA.length=0;
 	}
 	/**
-	 * @function           checkHoliday
-	 * @returns  {boolean}
-	 * 取り出し可能な日かを判定する
+	 * @function {boolean} checkHoliday
 	 */
 	function checkHoliday(){
 		return HOLIDAY_LIST.includes(`${temp.getFullYear()}/${temp.getMonth()+1}/${temp.getDate()}`)||temp.getDay()%6==0;
 	}
 	/**
-	 * @function               copyElement
-	 * @param    {HTMLElement} targetElement
-	 * 要素を選択し、クリップボードにコピーする
+	 * @function copyElement
+	 * @argument {HTMLElement} targetElement
 	 */
 	function copyElement(targetElement){
 		const range=document.createRange();

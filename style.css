@@ -57,15 +57,17 @@ body{
 #resultTable{
 	border-collapse: collapse;
 }
-#resultTable td{
+#resultTable td,#resultTable th{
 	border: solid 0.05rem black;
 	min-width: 2rem;
+}
+#resultTable td{
 	text-align: right;
 }
-#resultTable td:nth-child(5n+6){
+#resultTable td:nth-child(5n+6),#resultTable th:nth-child(5n+6){
 	border-left: solid 0.1rem black;
 }
-#resultTable tr:first-child td{
+#resultTable thead{
 	border-bottom: double 0.15rem black;
 	text-align: center;
 }
